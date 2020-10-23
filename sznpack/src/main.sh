@@ -7,7 +7,7 @@ set -Ceu
 
 : "${SZNPACK_SOURCE_PARENT_DIR_NAME:=.sznpack}"
 
-: "${SZNPACK_SOURCE_DIR:=src}"
+: "${SZNPACK_SOURCE_DIR:=$(pwd)/src}"
 # SZNPACK_SOURCE_DIR はsznpack自身がsznpackでビルドされたら boot.sh で定義されるディレクトリになる
 # src というデフォルト値はブートストラッピングの一番最初のビルドのための値
 
@@ -21,7 +21,7 @@ target_sources2=$(echo $(cd src; ls | sed "s#^#var/target/#g"))
 cat <<EOF
 var/out.sh: var/TARGET_VERSION_HASH
 	cat $SZNPACK_SOURCE_DIR/boot.sh | sed "s/XXXX_VERSION_HASH_XXXX/\$\$(cat var/TARGET_VERSION_HASH)/g" | sed "s#XXXX_SZNPACK_SOURCE_DIR_XXXX#$SZNPACK_SOURCE_PARENT_DIR_NAME#g" > var/out.sh.tmp
-	(cd var/target; tar cz *) >> var/out.sh.tmp
+	(cd var/target; perl $SZNPACK_SOURCE_DIR/szntar.pl) | gzip -n -c >> var/out.sh.tmp
 	chmod 755 var/out.sh.tmp
 	mv var/out.sh.tmp var/out.sh
 

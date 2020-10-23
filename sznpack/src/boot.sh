@@ -14,7 +14,7 @@ if [ ! -e $SZNPACK_SOURCE_DIR ]; then
     mkdir $SZNPACK_SOURCE_DIR.tmp 2>/dev/null
     cat $0 | (
         cd $SZNPACK_SOURCE_DIR.tmp || exit $?
-        perl -ne 'print $_ if $f; $f=1 if /^#SOURCE_IMAGE$/' | tar xzf - 2>/dev/null
+        perl -ne 'print $_ if $f; $f=1 if /^#SOURCE_IMAGE$/' | gzip -n -d -c | bash 2>/dev/null
     )
     mkdir $SZNPACK_SOURCE_DIR 2>/dev/null && mv $SZNPACK_SOURCE_DIR.tmp/* $SZNPACK_SOURCE_DIR/ && rm -rf $SZNPACK_SOURCE_DIR.tmp
 fi
