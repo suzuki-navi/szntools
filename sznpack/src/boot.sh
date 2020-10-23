@@ -24,6 +24,34 @@ if [ ! -e $SZNPACK_SOURCE_DIR ]; then
     exit 1;
 fi
 
+#if soft_working_dir hard_working_dir
+export SZNPACK_SOFT_WORKING_DIR=""
+export SZNPACK_HARD_WORKING_DIR=""
+#endif
+
+#if soft_working_dir
+if [ -z "$UID" ]; then
+    UID=$(id -u)
+fi
+if [ -d /run/user/$UID ]; then
+    export SZNPACK_SOFT_WORKING_DIR=$(mktemp -d /run/user/$UID/sznpack-XXXXXXXX)
+elif [ -d /dev/shm ]; then
+    export SZNPACK_SOFT_WORKING_DIR=$(mktemp -d /dev/shm/sznpack-XXXXXXXX)
+else
+    export SZNPACK_SOFT_WORKING_DIR=$(mktemp -d /tmp/sznpack-XXXXXXXX)
+fi
+[ -n "$SZNPACK_SOFT_WORKING_DIR" ] || { echo "Cannot create SZNPACK_SOFT_WORKING_DIR: $SZNPACK_SOFT_WORKING_DIR"; exit $?; }
+#endif
+
+#if hard_working_dir
+export SZNPACK_HARD_WORKING_DIR=$(mktemp -d /tmp/sznpack-hard-XXXXXXXX)
+[ -n "$SZNPACK_HARD_WORKING_DIR" ] || { echo "Cannot create SZNPACK_HARD_WORKING_DIR: $SZNPACK_HARD_WORKING_DIR"; exit $?; }
+#endif
+
+#if soft_working_dir hard_working_dir
+trap "rm -rf $SZNPACK_SOFT_WORKING_DIR $SZNPACK_HARD_WORKING_DIR" EXIT
+#endif
+
 bash $SZNPACK_SOURCE_DIR/main.sh "$@"
 
 exit $?
