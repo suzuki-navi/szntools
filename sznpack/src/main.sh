@@ -11,19 +11,31 @@ set -Ceu
 # SZNPACK_SOURCE_DIR はsznpackでビルド時に定義される。
 # 未定義の場合にエラーとする。
 
-mkdir -p var/target
-
-output=
+target_source_dir=
+output=out.sh
 while [ $# -gt 0 ]; do
     if [ "$1" = "-o" ]; then
         output=$2
         shift
+    elif [ -z "$target_source_dir" ]; then
+        target_source_dir=$1
     else
         echo "Unknown parameter" >&2
         exit 1
     fi
     shift
 done
+
+if [ -z "$target_source_dir" ]; then
+    target_source_dir=src
+fi
+
+cp -r $target_source_dir $SZNPACK_SOFT_WORKING_DIR/src
+
+(
+cd $SZNPACK_SOFT_WORKING_DIR
+
+mkdir -p var/target
 
 target_sources=$(cd src; ls)
 target_sources2=$(echo $(cd src; ls | sed "s#^#var/target/#g"))
@@ -68,14 +80,12 @@ EOF
 mv var/makefile.tmp var/makefile
 
 make -s -f var/makefile
+)
 
 result=$?
 
 if [ $result = 0 ]; then
-    if [ -n "$output" ]; then
-        mv var/out.sh $output
-        touch $output
-    fi
+    mv $SZNPACK_SOFT_WORKING_DIR/var/out.sh $output
 fi
 
 exit $result

@@ -1,6 +1,7 @@
 
 rm -f ./var/out.sh
-../bin/sznpack
+mkdir -p var
+../bin/sznpack -o var/out.sh
 
 ls -l ./var/out.sh
 
