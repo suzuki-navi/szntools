@@ -1,7 +1,10 @@
 build: bin/sznpack
 
+# etc/sznpack: built by last version
+# bin/sznpack: built by this source
+
 bin/sznpack: src/szntar.pl FORCE
-	bash src/main.sh
+	./etc/sznpack
 	mkdir -p bin
 	cp var/out.sh bin/sznpack
 

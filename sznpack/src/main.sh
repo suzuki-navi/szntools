@@ -7,9 +7,9 @@ set -Ceu
 
 : "${SZNPACK_SOURCE_PARENT_DIR_NAME:=.sznpack}"
 
-: "${SZNPACK_SOURCE_DIR:=$(pwd)/src}"
-# SZNPACK_SOURCE_DIR はsznpack自身がsznpackでビルドされたら boot.sh で定義されるディレクトリになる
-# src というデフォルト値はブートストラッピングの一番最初のビルドのための値
+: "$SZNPACK_SOURCE_DIR"
+# SZNPACK_SOURCE_DIR はsznpackでビルド時に定義される。
+# 未定義の場合にエラーとする。
 
 mkdir -p var/target
 
