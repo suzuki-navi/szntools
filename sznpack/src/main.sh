@@ -13,6 +13,18 @@ set -Ceu
 
 mkdir -p var/target
 
+output=
+while [ $# -gt 0 ]; do
+    if [ "$1" = "-o" ]; then
+        output=$2
+        shift
+    else
+        echo "Unknown parameter" >&2
+        exit 1
+    fi
+    shift
+done
+
 target_sources=$(cd src; ls)
 target_sources2=$(echo $(cd src; ls | sed "s#^#var/target/#g"))
 
@@ -47,5 +59,14 @@ mv var/makefile.tmp var/makefile
 
 make -s -f var/makefile
 
-exit $?
+result=$?
+
+if [ $result = 0 ]; then
+    if [ -n "$output" ]; then
+        mv var/out.sh $output
+        touch $output
+    fi
+fi
+
+exit $result
 
