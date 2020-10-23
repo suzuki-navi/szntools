@@ -21,5 +21,8 @@ var/out.2.sh: var/out.1.sh
 src/szntar.pl: etc/download-szntar.sh
 	bash etc/download-szntar.sh > src/szntar.pl
 
+test: bin/sznpack FORCE
+	cd test; bash ./test.sh
+
 FORCE:
 
