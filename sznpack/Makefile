@@ -16,8 +16,8 @@ var/out.1.sh: FORCE
 var/out.2.sh: var/out.1.sh
 	./var/out.1.sh -o var/out.2.sh
 
-src/szntar.pl: etc/download-szntar.sh
-	bash etc/download-szntar.sh > src/szntar.pl
+src/szntar.pl: ../szntar/szntar
+	cp ../szntar/szntar src/szntar.pl
 
 test: bin/sznpack FORCE
 	cd test; bash ./test.sh
