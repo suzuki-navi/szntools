@@ -21,7 +21,7 @@ for d in $(ls .); do
         cd $d
         make
     )
-    if [[ -e $d/bin/$d ]] && ( [[ ! -e bin/$d ]] || ! cmp bin/$d $d/bin/$d 2>/dev/null ); then
+    if [[ -e $d/bin/$d ]] && ( [[ ! -e bin/$d ]] || ! cmp bin/$d $d/bin/$d >/dev/null ); then
         cp -vp $d/bin/$d bin/$d
     fi
 done
