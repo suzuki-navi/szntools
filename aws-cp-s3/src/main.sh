@@ -1,4 +1,6 @@
 
+set -Ceu
+
 # $SZNPACK_SOURCE_DIR
 # $SZNPACK_HARD_WORKING_DIR
 
@@ -46,7 +48,17 @@ done
 
 # pathは最後にスラッシュがあってもなくても同じ
 
-python $SZNPACK_SOURCE_DIR/sync-s3dir.py "$src_profile" "$src_path" "$dst_profile" "$dst_path" "$SZNPACK_HARD_WORKING_DIR/buf" > $SZNPACK_HARD_WORKING_DIR/script.sh
+if type pipenv >/dev/null; then
+    if [[ ! -e $SZNPACK_SOURCE_DIR/.installed ]]; then
+        PIPENV_PIPFILE=$SZNPACK_SOURCE_DIR/Pipfile pipenv sync >&2
+        touch $SZNPACK_SOURCE_DIR/.installed
+    fi
+    PIPENV_PIPFILE=$SZNPACK_SOURCE_DIR/Pipfile pipenv run python $SZNPACK_SOURCE_DIR/sync-s3dir.py "$src_profile" "$src_path" "$dst_profile" "$dst_path" "$SZNPACK_HARD_WORKING_DIR/buf" > $SZNPACK_HARD_WORKING_DIR/script.sh
+else
+    python $SZNPACK_SOURCE_DIR/sync-s3dir.py "$src_profile" "$src_path" "$dst_profile" "$dst_path" "$SZNPACK_HARD_WORKING_DIR/buf" > $SZNPACK_HARD_WORKING_DIR/script.sh
+fi
+
+#python $SZNPACK_SOURCE_DIR/sync-s3dir.py "$src_profile" "$src_path" "$dst_profile" "$dst_path" "$SZNPACK_HARD_WORKING_DIR/buf" > $SZNPACK_HARD_WORKING_DIR/script.sh
 
 if [[ -n "$dry_run" ]]; then
     cat $SZNPACK_HARD_WORKING_DIR/script.sh
