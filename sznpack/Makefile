@@ -9,7 +9,7 @@ bin/sznpack: src/szntar.pl var/out.2.sh
 	mkdir -p bin
 	cp var/out.3.sh bin/sznpack
 
-var/out.1.sh: FORCE
+var/out.1.sh: ./etc/sznpack src/*
 	mkdir -p var
 	./etc/sznpack -o var/out.1.sh
 

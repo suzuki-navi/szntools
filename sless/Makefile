@@ -1,11 +1,8 @@
 build: bin/sless
 
-bin/sless: etc/sznpack.sh src/*
+bin/sless: ../sznpack/etc/sznpack src/*
 	mkdir -p bin
-	bash ./etc/sznpack.sh -o bin/sless
-
-etc/sznpack.sh: ../sznpack/etc/sznpack
-	cp ../sznpack/etc/sznpack etc/sznpack.sh
+	bash ../sznpack/etc/sznpack -o bin/sless
 
 test: bin/sless FORCE
 	cd test; bash ./test.sh
