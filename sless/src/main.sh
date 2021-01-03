@@ -10,6 +10,8 @@ while [[ $# -gt 0 ]]; do
         option="$option -v"
     elif [[ "$arg" = -h ]]; then
         option="$option -h"
+    elif [[ "$arg" = -n ]]; then
+        option="$option -n"
     else
         files+=("$arg")
     fi

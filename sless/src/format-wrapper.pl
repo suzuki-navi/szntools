@@ -7,6 +7,7 @@ my $SLESS_HOME = $ENV{"SLESS_HOME"};
 my $format = "";
 my $verbose_flag = "";
 my $color_flag = "";
+my $number_flag = "";
 
 while (@ARGV) {
     my $a = shift(@ARGV);
@@ -16,6 +17,8 @@ while (@ARGV) {
         $format = "tsv";
     } elsif ($a eq "-v") {
         $verbose_flag = 1;
+    } elsif ($a eq "-n") {
+        $number_flag = 1;
     } elsif ($a eq "--color") {
         $color_flag = 1;
     } else {
@@ -143,7 +146,7 @@ if ($verbose_flag) {
     print STDERR "format=$format\n";
 }
 
-if ($format eq "json" || $format eq "jsonl") {
+if (($format eq "json" || $format eq "jsonl") && !$number_flag) {
     my $READER1;
     my $WRITER1;
     pipe($READER1, $WRITER1);
@@ -219,6 +222,11 @@ if (1) {
         push(@options, "--color=always");
     } else {
         push(@options, "--color=never");
+    }
+    if ($number_flag) {
+        push(@options, "-n");
+    } else {
+        push(@options, "-p");
     }
     exec("bash", "$SLESS_HOME/bat.sh", @options);
 }
