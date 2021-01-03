@@ -197,9 +197,29 @@ if ($format eq "tsv") {
     exec("perl", "$SLESS_HOME/table.pl", @options);
 }
 
-# 先読みした内容を出力
-syswrite(STDOUT, $head_buf);
+if (1) {
+    my $READER1;
+    my $WRITER1;
+    pipe($READER1, $WRITER1);
 
-# 残りの入力をそのまま出力
-exec("cat");
+    my $pid1 = fork;
+    die $! if (!defined $pid1);
+    if (!$pid1) {
+        # 読み込み済みの入力を標準出力し、残りはcatする
+        close $READER1;
+        open(STDOUT, '>&=', fileno($WRITER1));
+        syswrite(STDOUT, $head_buf);
+        exec("cat");
+    }
+    close $WRITER1;
+    open(STDIN, '<&=', fileno($READER1));
+
+    my @options = ();
+    if ($color_flag) {
+        push(@options, "--color=always");
+    } else {
+        push(@options, "--color=never");
+    }
+    exec("bash", "$SLESS_HOME/bat.sh", @options);
+}
 
