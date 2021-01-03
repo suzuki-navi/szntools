@@ -9,18 +9,22 @@ my $verbose_flag = "";
 my $color_flag = "";
 my $number_flag = "";
 
+my @recursive_option = ();
+
 while (@ARGV) {
     my $a = shift(@ARGV);
-    if ($a eq "--json") {
-        $format = "json";
-    } elsif ($a eq "--tsv") {
-        $format = "tsv";
+    if ($a eq "-f") {
+        $format = shift(@ARGV);
+        push(@recursive_option, $a, $format);
     } elsif ($a eq "-v") {
         $verbose_flag = 1;
+        push(@recursive_option, $a);
     } elsif ($a eq "-n") {
         $number_flag = 1;
+        push(@recursive_option, $a);
     } elsif ($a eq "--color") {
         $color_flag = 1;
+        push(@recursive_option, $a);
     } else {
         die "Unknown argument: $a\n";
     }
@@ -96,45 +100,59 @@ if ($gzip_flag || $xz_flag) {
     close $WRITER2;
     open(STDIN, '<&=', fileno($READER2));
 
-    my @options = ();
-    if ($format eq "json") {
-        push(@options, "--json");
-    }
-    if ($verbose_flag) {
-        push(@options, "-v");
-    }
-    if ($color_flag) {
-        push(@options, "--color");
-    }
-
     if ($verbose_flag) {
         if ($gzip_flag) {
-            print STDERR "format=gzip\n";
+            print "format=gzip\n";
         } elsif ($xz_flag) {
-            print STDERR "format=xz\n";
+            print "format=xz\n";
         }
     }
-    exec("perl", "$SLESS_HOME/format-wrapper.pl", @options);
+    exec("perl", "$SLESS_HOME/format-wrapper.pl", @recursive_option);
 }
 
 sub guess_format {
     my ($head_buf) = @_;
     my @lines = split(/\r?\n/, $head_buf);
 
-    if (@lines >= 2 && $lines[0] =~ /\t/ && $lines[1] =~ /\t/) {
-        return "tsv";
+    if ($lines[0] =~ /\A#!\//) {
+        return "";
     }
 
+    my $tsv = 0;
+    my $json = 0;
+    my $jsonl = 0;
+    my $markdown = 0;
+    my $perl = 0;
+    if (@lines >= 2 && $lines[0] =~ /\t/ && $lines[1] =~ /\t/) {
+        $tsv++;
+    }
     if ($lines[0] =~ /\A\{/) {
         if (@lines >= 2 && $lines[1] =~ /\A\{/) {
-            return "jsonl";
+            $jsonl++;
         } else {
-            return "json";
+            $json++;
         }
     }
+    foreach my $line (@lines) {
+        if ($line =~ /\A#+\s/) {
+            $markdown++;
+        } elsif ($line =~ /\A-\s/) {
+            $markdown++;
+        } elsif ($line =~ /\A\*\s/) {
+            $markdown++;
+        } elsif ($line =~ /\Ause\s+(strict|warnings|utf8)/) {
+            $perl++;
+        }
+    }
+    my $format = "";
+    my $score = 0;
+    $format = "tsv"      if $tsv      > $score;
+    $format = "json"     if $json     > $score;
+    $format = "jsonl"    if $jsonl    > $score;
+    $format = "markdown" if $markdown > $score;
+    $format = "perl"     if $perl     > $score;
 
-    # failed to guess format
-    return "text";
+    return $format;
 }
 
 if ($format eq '') {
@@ -143,7 +161,7 @@ if ($format eq '') {
 
 # フォーマットの推定結果を出力
 if ($verbose_flag) {
-    print STDERR "format=$format\n";
+    print "format=$format\n";
 }
 
 if (($format eq "json" || $format eq "jsonl") && !$number_flag) {
@@ -228,6 +246,10 @@ if (1) {
     } else {
         push(@options, "-p");
     }
+    if ($format ne "") {
+        push(@options, "--language=$format");
+    }
+    #print join(" ", @options) . "\n";
     exec("bash", "$SLESS_HOME/bat.sh", @options);
 }
 

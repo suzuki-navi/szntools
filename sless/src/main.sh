@@ -6,7 +6,11 @@ option=
 declare -a files=()
 while [[ $# -gt 0 ]]; do
     arg="$1"
-    if [[ "$arg" = -v ]]; then
+    if [[ "$arg" = -f ]]; then
+        shift
+        f="$1"
+        option="$option -f $f"
+    elif [[ "$arg" = -v ]]; then
         option="$option -v"
     elif [[ "$arg" = -h ]]; then
         option="$option -h"

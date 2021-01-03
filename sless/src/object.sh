@@ -8,7 +8,11 @@ color_flag=
 target_file=
 while [[ $# -gt 0 ]]; do
     arg="$1"
-    if [[ "$arg" = -v ]]; then
+    if [[ "$arg" = -f ]]; then
+        shift
+        f="$1"
+        format_wrapper_option="$format_wrapper_option -f $f"
+    elif [[ "$arg" = -v ]]; then
         format_wrapper_option="$format_wrapper_option -v"
     elif [[ "$arg" = -h ]]; then
         ls_option="$ls_option -h"
