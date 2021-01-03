@@ -170,7 +170,7 @@ if ($format eq "json" || $format eq "jsonl") {
     if ($format eq "jsonl") {
         push(@options, "-c");
     }
-    exec("jq", @options);
+    exec("bash", "$SLESS_HOME/jq.sh", @options);
 }
 
 if ($format eq "tsv") {
