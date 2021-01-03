@@ -20,9 +20,9 @@ for d in $(ls .); do
     (
         cd $d
         make
-    )
-    if [[ -e $d/bin/$d ]] && ( [[ ! -e bin/$d ]] || ! cmp bin/$d $d/bin/$d >/dev/null ); then
-        cp -vp $d/bin/$d bin/$d
-    fi
+        if [[ -e bin/$d ]] && ( [[ ! -e ../bin/$d ]] || ! cmp ../bin/$d bin/$d >/dev/null ); then
+            cp -vp bin/$d ../bin/$d
+        fi
+    ) || true
 done
 
