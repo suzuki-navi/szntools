@@ -112,6 +112,11 @@ if ($gzip_flag || $xz_flag) {
 
 sub guess_format {
     my ($head_buf) = @_;
+
+    if ($head_buf =~ /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/) {
+        return $format = "binary";
+    }
+
     my @lines = split(/\r?\n/, $head_buf);
 
     if ($lines[0] =~ /\A#!\//) {
@@ -235,21 +240,25 @@ if (1) {
     close $WRITER1;
     open(STDIN, '<&=', fileno($READER1));
 
-    my @options = ();
-    if ($color_flag) {
-        push(@options, "--color=always");
+    if ($format eq "binary") {
+        my @options = ("-C");
+        exec("bash", "$SLESS_HOME/hexdump.sh", @options);
     } else {
-        push(@options, "--color=never");
+        my @options = ();
+        if ($color_flag) {
+            push(@options, "--color=always");
+        } else {
+            push(@options, "--color=never");
+        }
+        if ($number_flag) {
+            push(@options, "-n");
+        } else {
+            push(@options, "-p");
+        }
+        if ($format ne "") {
+            push(@options, "--language=$format");
+        }
+        exec("bash", "$SLESS_HOME/bat.sh", @options);
     }
-    if ($number_flag) {
-        push(@options, "-n");
-    } else {
-        push(@options, "-p");
-    }
-    if ($format ne "") {
-        push(@options, "--language=$format");
-    }
-    #print join(" ", @options) . "\n";
-    exec("bash", "$SLESS_HOME/bat.sh", @options);
 }
 
