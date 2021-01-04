@@ -113,6 +113,14 @@ if ($gzip_flag || $xz_flag) {
 sub guess_format {
     my ($head_buf) = @_;
 
+    if (length($head_buf) >= 265) {
+        my $b = substr($head_buf, 257, 8);
+        if ($b eq "ustar\x00\x30\x30") {
+            return "tar";
+        } elsif ($b eq "ustar  \x00") {
+            return "tar";
+        }
+    }
     if ($head_buf =~ /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/) {
         return $format = "binary";
     }
@@ -240,7 +248,10 @@ if (1) {
     close $WRITER1;
     open(STDIN, '<&=', fileno($READER1));
 
-    if ($format eq "binary") {
+    if ($format eq "tar") {
+        my @options = ("tv");
+        exec("bash", "$SLESS_HOME/tar.sh", @options);
+    } elsif ($format eq "binary") {
         my @options = ("-C");
         exec("bash", "$SLESS_HOME/hexdump.sh", @options);
     } else {
