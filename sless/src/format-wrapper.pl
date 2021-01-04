@@ -7,7 +7,7 @@ my $SLESS_HOME = $ENV{"SLESS_HOME"};
 my $format = "";
 my $verbose_flag = "";
 my $color_flag = "";
-my $number_flag = "";
+my $number_flag = 1;
 
 my @recursive_option = ();
 
@@ -20,7 +20,7 @@ while (@ARGV) {
         $verbose_flag = 1;
         push(@recursive_option, $a);
     } elsif ($a eq "-n") {
-        $number_flag = 1;
+        $number_flag = "";
         push(@recursive_option, $a);
     } elsif ($a eq "--color") {
         $color_flag = 1;
