@@ -36,6 +36,10 @@ if [[ -t 1 ]]; then
     filename_esc_2="\e[m"
 fi
 
+if [[ ${#files[@]} = 0 && -t 0 ]]; then
+    files+=(".")
+fi
+
 if [[ ${#files[@]} = 0 ]]; then
     bash $SLESS_HOME/object.sh $option
 elif [[ ${#files[@]} = 1 ]]; then
