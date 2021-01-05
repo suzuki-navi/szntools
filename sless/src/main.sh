@@ -49,11 +49,11 @@ if [[ ${#files[@]} = 0 ]]; then
     bash $SLESS_HOME/object.sh $option
 elif [[ ${#files[@]} = 1 ]]; then
     f="${files[0]}"
-    bash $SLESS_HOME/object.sh $option "$f"
+    bash $SLESS_HOME/object.sh $option -- "$f"
 else
     for f in ${files[@]}; do
         echo -e "$filename_esc_1$f$filename_esc_2"
-        bash $SLESS_HOME/object.sh $option "$f"
+        bash $SLESS_HOME/object.sh $option -- "$f"
     done
 fi | $lesscmd
 

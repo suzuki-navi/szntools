@@ -38,6 +38,6 @@ elif [[ -d "$target_file" ]]; then
         ls -alF $ls_option --color=never --time-style="+%Y-%m-%d %H:%M:%S" "$target_file"
     fi
 else
-    perl $SLESS_HOME/format-wrapper.pl $format_wrapper_option < "$target_file"
+    perl $SLESS_HOME/format-wrapper.pl $format_wrapper_option -- "$target_file"
 fi
 

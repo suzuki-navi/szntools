@@ -11,6 +11,8 @@ my $number_flag = 0;
 
 my @recursive_option = ();
 
+my $target_file = undef;
+
 while (@ARGV) {
     my $a = shift(@ARGV);
     if ($a eq "-f") {
@@ -28,9 +30,15 @@ while (@ARGV) {
     } elsif ($a eq "--color") {
         $color_flag = 1;
         push(@recursive_option, $a);
+    } elsif ($a eq "--") {
+        $target_file = shift(@ARGV);
     } else {
         die "Unknown argument: $a\n";
     }
+}
+
+if (defined($target_file)) {
+    open(STDIN, '<', $target_file);
 }
 
 my $head_size = 100 * 4096;
@@ -246,6 +254,14 @@ if ($format eq "tsv") {
         push(@options, "--color");
     }
     exec("perl", "$SLESS_HOME/table.pl", @options);
+}
+
+if (defined($target_file)) {
+    if ($format eq "zip") {
+        close(STDIN);
+        my @options = ("--", $target_file);
+        exec("bash", "$SLESS_HOME/zip.sh", @options);
+    }
 }
 
 if (1) {
