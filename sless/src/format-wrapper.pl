@@ -116,6 +116,16 @@ if ($gzip_flag || $xz_flag) {
 sub guess_format {
     my ($head_buf) = @_;
 
+    if (length($head_buf) >= 4) {
+        my $b = substr($head_buf, 0, 4);
+        if ($b eq "PK\x03\x04") {
+            return "zip";
+        } elsif ($b eq "PK\x05\x06") {
+            return "zip";
+        } elsif ($b eq "PK\x07\x08") {
+            return "zip";
+        }
+    }
     if (length($head_buf) >= 265) {
         my $b = substr($head_buf, 257, 8);
         if ($b eq "ustar\x00\x30\x30") {
@@ -255,7 +265,10 @@ if (1) {
     close $WRITER1;
     open(STDIN, '<&=', fileno($READER1));
 
-    if ($format eq "tar") {
+    if ($format eq "zip") {
+        my @options = ();
+        exec("bash", "$SLESS_HOME/zip.sh", @options);
+    } elsif ($format eq "tar") {
         my @options = ("tv");
         exec("bash", "$SLESS_HOME/tar.sh", @options);
     } elsif ($format eq "binary") {
