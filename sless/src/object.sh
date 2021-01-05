@@ -16,6 +16,8 @@ while [[ $# -gt 0 ]]; do
         format_wrapper_option="$format_wrapper_option -v"
     elif [[ "$arg" = -h ]]; then
         ls_option="$ls_option -h"
+    elif [[ "$arg" = -N ]]; then
+        format_wrapper_option="$format_wrapper_option -N"
     elif [[ "$arg" = -n ]]; then
         format_wrapper_option="$format_wrapper_option -n"
     elif [[ "$arg" = --color ]]; then

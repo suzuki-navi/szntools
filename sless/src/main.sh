@@ -14,6 +14,8 @@ while [[ $# -gt 0 ]]; do
         option="$option -v"
     elif [[ "$arg" = -h ]]; then
         option="$option -h"
+    elif [[ "$arg" = -N ]]; then
+        option="$option -N"
     elif [[ "$arg" = -n ]]; then
         option="$option -n"
     else

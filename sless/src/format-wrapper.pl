@@ -7,7 +7,7 @@ my $SLESS_HOME = $ENV{"SLESS_HOME"};
 my $format = "";
 my $verbose_flag = "";
 my $color_flag = "";
-my $number_flag = 1;
+my $number_flag = 0;
 
 my @recursive_option = ();
 
@@ -19,8 +19,11 @@ while (@ARGV) {
     } elsif ($a eq "-v") {
         $verbose_flag = 1;
         push(@recursive_option, $a);
+    } elsif ($a eq "-N") {
+        $number_flag = 1;
+        push(@recursive_option, $a);
     } elsif ($a eq "-n") {
-        $number_flag = "";
+        $number_flag = -1;
         push(@recursive_option, $a);
     } elsif ($a eq "--color") {
         $color_flag = 1;
@@ -177,7 +180,7 @@ if ($verbose_flag) {
     print "format=$format\n";
 }
 
-if (($format eq "json" || $format eq "jsonl") && !$number_flag) {
+if (($format eq "json" || $format eq "jsonl") && $number_flag <= 0) {
     my $READER1;
     my $WRITER1;
     pipe($READER1, $WRITER1);
@@ -204,7 +207,11 @@ if (($format eq "json" || $format eq "jsonl") && !$number_flag) {
     if ($format eq "jsonl") {
         push(@options, "-c");
     }
-    exec("bash", "$SLESS_HOME/jq.sh", @options);
+    if ($number_flag < 0) {
+        exec("bash", "$SLESS_HOME/jq.sh", @options);
+    } else {
+        exec("bash", "$SLESS_HOME/jqn.sh", @options);
+    }
 }
 
 if ($format eq "tsv") {
@@ -261,7 +268,7 @@ if (1) {
         } else {
             push(@options, "--color=never");
         }
-        if ($number_flag) {
+        if ($number_flag >= 0) {
             push(@options, "-n");
         } else {
             push(@options, "-p");
