@@ -21,6 +21,8 @@ while [[ $# -gt 0 ]]; do
         option="$option -N"
     elif [[ "$arg" = -n ]]; then
         option="$option -n"
+    elif [[ "$arg" = -r ]]; then
+        option="$option -r"
     else
         files+=("$arg")
     fi

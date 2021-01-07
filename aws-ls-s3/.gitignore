@@ -1,0 +1,11 @@
+*.pyc
+__pycache__/
+
+# pip install -e .
+# で作成されるディレクトリ
+/*.egg-info/
+
+# python setup.py sdist
+# で作成されるディレクトリ
+/dist/
+

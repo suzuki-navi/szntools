@@ -143,9 +143,12 @@ sub guess_format {
         }
     }
     if ($head_buf =~ /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/) {
-        return $format = "binary";
+        return "binary";
     }
 
+    if (length($head_buf) == 0) {
+        return ""
+    }
     my @lines = split(/\r?\n/, $head_buf);
 
     if ($lines[0] =~ /\A#!\//) {
@@ -188,6 +191,8 @@ sub guess_format {
 
     return $format;
 }
+
+exit(0) if length($head_buf) == 0;
 
 if ($format eq '') {
     $format = guess_format($head_buf);
