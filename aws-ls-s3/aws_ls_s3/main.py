@@ -16,12 +16,14 @@ def main():
     config = loadConfig()
     if opts['help']:
         print(f'aws_ls_s3 {VERSION}')
-    elif opts['s3_bucket'] == None:
-        execProfileListS3Buckets(opts['profile'], config)
     elif opts['cat']:
-        execCatS3Object(opts['profile'], opts['s3_bucket'], opts['s3_key'], opts['verbose'], opts['if_exists'], config)
+        if opts['s3_bucket'] != None:
+            execCatS3Object(opts['profile'], opts['s3_bucket'], opts['s3_key'], opts['verbose'], opts['if_exists'], config)
     else:
-        execListS3Object(opts['profile'], opts['s3_bucket'], opts['s3_key'], opts['recursive'], opts['verbose'], opts['if_exists'], config)
+        if opts['s3_bucket'] == None:
+            execProfileListS3Buckets(opts['profile'], config)
+        else:
+            execListS3Object(opts['profile'], opts['s3_bucket'], opts['s3_key'], opts['recursive'], opts['verbose'], opts['human'], opts['if_exists'], config)
 
 def parseArgs(args):
     profile = None
@@ -29,9 +31,11 @@ def parseArgs(args):
     s3_key = '/'
     recursive = False
     verbose = False
+    human = False
     cat = False
     if_exists = False
     help = False
+    target_exists = False
     while args:
         arg = args.pop(0)
         if arg == '--profile':
@@ -43,18 +47,29 @@ def parseArgs(args):
             recursive = True
         elif arg == '-v':
             verbose = True
+        elif arg == '-h':
+            human = True
         elif arg == '--cat':
             cat = True
         elif arg == '--if-exists':
             if_exists = True
         elif arg == '--help':
             help = True
+        elif arg == 's3://':
+            if target_exists:
+                print(f'Duplicated argument: {arg}', file = sys.stderr)
+                sys.exit(1)
+            target_exists = True
         else:
             m = re.compile(r's3://([^/]+)(/.*)?\Z').match(arg)
             if m:
+                if target_exists:
+                    print(f'Duplicated argument: {arg}', file = sys.stderr)
+                    sys.exit(1)
                 s3_bucket = m.group(1)
                 if m.group(2):
                     s3_key = m.group(2)
+                target_exists = True
             else:
                 print(f'Illegal format parameter: {arg}', file = sys.stderr)
                 sys.exit(1)
@@ -64,6 +79,7 @@ def parseArgs(args):
         's3_key': s3_key,
         'recursive': recursive,
         'verbose': verbose,
+        'human': human,
         'cat': cat,
         'if_exists': if_exists,
         'help': help,
@@ -156,7 +172,7 @@ def execCatS3Object(profile, s3_bucket, s3_key, verbose, if_exists, config):
         if result != 0:
             sys.exit(result)
 
-def execListS3Object(profile, s3_bucket, s3_key, recursive, verbose, if_exists, config):
+def execListS3Object(profile, s3_bucket, s3_key, recursive, verbose, human, if_exists, config):
     if profile == None:
         profile = bucketNameToProfile(s3_bucket, config)
         if profile == None:
@@ -198,10 +214,12 @@ def execListS3Object(profile, s3_bucket, s3_key, recursive, verbose, if_exists, 
             flag = False
 
     if flag:
+        commands = ['aws', '--profile', profile, 's3', 'ls']
         if recursive:
-            commands = ['aws', '--profile', profile, 's3', 'ls', '--recursive', f's3://{s3_bucket}{dir_path}']
-        else:
-            commands = ['aws', '--profile', profile, 's3', 'ls', f's3://{s3_bucket}{dir_path}']
+            commands.append('--recursive')
+        if human:
+            commands.append('--human-readable')
+        commands.append(f's3://{s3_bucket}{dir_path}')
         if verbose:
             print(commands, file = sys.stderr)
         result = subprocess.call(commands)
